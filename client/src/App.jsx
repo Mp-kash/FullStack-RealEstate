@@ -1,0 +1,54 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { MantineProvider } from "@mantine/core";
+import "react-toastify/dist/ReactToastify.css";
+
+import "./App.css";
+import Website from "./pages/Website";
+import { Suspense, useState } from "react";
+import Layout from "./components/Layout/Layout";
+import Properties from "./pages/Properties/Properties";
+import { ToastContainer } from "react-toastify";
+import Property from "./pages/Property/Property";
+import UserDetailContext from "./components/Context/UserDetailContext";
+import Bookings from "./pages/Bookings/Bookings";
+import Favorites from "./pages/Favorites/Favorites";
+
+function App() {
+  const queryClient = new QueryClient();
+
+  const [userDetails, setUserDetails] = useState({
+    favorites: [],
+    bookings: [],
+    token: null,
+  });
+
+  return (
+    <UserDetailContext.Provider value={{ userDetails, setUserDetails }}>
+      <MantineProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<Website />} />
+                  <Route path="/properties">
+                    <Route index element={<Properties />} />
+                    <Route path=":propertyId" element={<Property />} />
+                  </Route>
+                  <Route path="/bookings" element={<Bookings />} />
+                  <Route path="/favorites" element={<Favorites />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+          <ToastContainer />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </MantineProvider>
+    </UserDetailContext.Provider>
+  );
+}
+
+export default App;
